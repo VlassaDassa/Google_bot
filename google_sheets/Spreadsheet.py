@@ -14,10 +14,6 @@ def htmlColorToJSON(htmlColor):
 
 
 
-
-
-
-
 # ERRORS
 class SpreadsheetError(Exception):
     pass
@@ -29,15 +25,7 @@ class SheetNotSetError(SpreadsheetError):
     pass
 
 
-
-
-
-
-
-
-
 class Spreadsheet:
-
     def __init__(self, jsonKeyFileName, spreadsheetId, debugMode = False):
         self.debugMode = debugMode
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(jsonKeyFileName, ['https://www.googleapis.com/auth/spreadsheets',
@@ -52,9 +40,6 @@ class Spreadsheet:
         self.valueRanges = []
 
 
-
-
-
     # SET CURRENT SHEET AS FIRST OF THIS SPREADSHEET
     def setSpreadsheetById(self, spreadsheetId):
         spreadsheet = self.service.spreadsheets().get(spreadsheetId = spreadsheetId).execute()
@@ -63,8 +48,6 @@ class Spreadsheet:
         self.spreadsheetId = spreadsheet['spreadsheetId']
         self.sheetId = spreadsheet['sheets'][0]['properties']['sheetId']
         self.sheetTitle = spreadsheet['sheets'][0]['properties']['title']
-
-
 
 
 
@@ -90,9 +73,6 @@ class Spreadsheet:
         return (upd1Res['replies'], upd2Res['responses'])
 
 
-
-
-
     # PREPARE ADD NEW_SHEET
     def prepare_addSheet(self, sheetTitle, rows = 1000, cols = 26):
         self.requests.append({"addSheet": {"properties": {"title": sheetTitle, 'gridProperties': {'rowCount': rows, 'columnCount': cols}}}})
@@ -109,9 +89,6 @@ class Spreadsheet:
         self.sheetTitle = addedSheet['title']
         return self.sheetId
 
-
-
-
     # RENAME SPREADSHEET
     def rename_Spreadsheet(self, new_name):
         if self.spreadsheetId is None:
@@ -123,9 +100,6 @@ class Spreadsheet:
             body = {"name": new_name}
 
             self.driveService.files().update(fileId=self.spreadsheetId, body=body).execute()
-
-
-
 
 
     # DELETE SHEET
@@ -145,9 +119,6 @@ class Spreadsheet:
         }
 
         self.service.spreadsheets().batchUpdate(spreadsheetId=self.spreadsheetId, body=request_body).execute()
-
-
-
 
 
     # RETURN'S SHEET ID
@@ -171,9 +142,8 @@ class Spreadsheet:
 
         sheet_metadata = self.service.spreadsheets().get(spreadsheetId=self.spreadsheetId).execute()
         sheets = sheet_metadata.get('sheets', '')
-        sheet_title = sheets[index_list].get('properties', {}).get('sheetTitle', '')
+        sheet_title = sheets[index_list].get('properties', {}).get('title', '')
         return sheet_title
-
 
 
 
@@ -202,9 +172,6 @@ class Spreadsheet:
         cellsRange["sheetId"] = self.sheetId
 
         return cellsRange
-
-
-
 
 
     # SET BORDERS
@@ -245,10 +212,6 @@ class Spreadsheet:
     def prepare_setRowHeight(self, row, height):
         self.prepare_setRowsHeight(row, row, height)
 
-
-
-
-
     # SET VALUES
     def prepare_setValues(self, cellsRange, values, sheetTitle, majorDimension = "ROWS"):
         if sheetTitle is None:
@@ -257,16 +220,9 @@ class Spreadsheet:
         self.valueRanges.append({"range": sheetTitle + "!" + cellsRange, "majorDimension": majorDimension, "values": values})
 
 
-
-
-
     # MERGE
     def prepare_mergeCells(self, cellsRange, mergeType = "MERGE_ALL"):
         self.requests.append({"mergeCells": {"range": self.toGridRange(cellsRange), "mergeType": mergeType}})
-
-
-
-
 
     # FORMAT
     def prepare_setCellsFormat(self, cellsRange, formatJSON, fields = "userEnteredFormat"):

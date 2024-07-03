@@ -22,6 +22,9 @@ import numpy as np
 # WARNINGS
 import warnings
 
+# OS
+import os
+
 
 
 # CREATE OBJECT DB
@@ -90,7 +93,7 @@ def create_graph(args_dict):
 
 
     # SAVE/SEND/REMOVE
-    path = r'/home/google_sheetBot/google_sheets/graph_img/'
+    path = os.path.abspath('google_sheets/graph_img/')
     name = '1'
     fig.savefig(path + name +'.jpg')
     args_dict['path'] = path + name + '.jpg'
@@ -126,10 +129,10 @@ def create_graph(args_dict):
     message_list['path'] = args_dict['path']
 
 
-async def return_message_list():
+def return_message_list():
     return message_list
 
-async def clear_message_list():
+def clear_message_list():
     message_list.clear()
 
 

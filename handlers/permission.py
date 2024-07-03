@@ -27,7 +27,6 @@ def permission(spreadsheet_Id):
     read_spreadsheet = ss.service.spreadsheets().values().get(spreadsheetId=spreadsheetId,
                                                               range=f"{sheet_title}!A1:C").execute()
 
-
     all_row = read_spreadsheet['values']
 
     for i in (range(0,2)):
@@ -40,17 +39,18 @@ def permission(spreadsheet_Id):
     else:
         last_row = user_row[-1]
 
-
-
         # COMPARE
         date = last_row[0]
         day = date.split('\\')[0]
         cur_day = cur_date.split('-')[-1]
 
 
-        #if int(cur_day) != int(day):
-        if date != day:
-            per_list.append(True)
+        # Можно поменять местами и за один день можно будет сделать много записей
+        if cfg.ONE_ROW_IN_DAY:
+            if int(cur_day) != int(day) :
+                per_list.append(True)
+            else:
+                per_list.append(False)
         else:
             per_list.append(False)
 
@@ -58,7 +58,7 @@ def permission(spreadsheet_Id):
 
 
 # RETURN PERMISSION
-async def returns_permission():
+def returns_permission():
     # Error handler
     if per_list == []:
         return 'Error'

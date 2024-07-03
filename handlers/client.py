@@ -41,7 +41,7 @@ from threading import Thread
 
 # OS
 import os
-import glob
+
 
 # PERMISSION TO DESCRIBE
 from handlers.permission import permission, returns_permission, clear_returns
@@ -64,18 +64,10 @@ db_pay = Database_pay(path_db)
 credentials = cfg.PATH_CREDENTIALS
 
 
-
-
 #ANTI FLOOD
 async def anti_flood(*args, **kwargs):
     message = args[0]
     await message.answer("Не спешите!")
-
-
-
-
-
-
 
 
 
@@ -165,10 +157,9 @@ async def help(message: types.Message):
                     'Когда вы проделаете все манипуляции, пришлите нам ссылку этой таблицы\n' \
                     '`/set_table` ссылка на таблицу'
 
-    img1 = open('/home/google_sheetBot/assets/1.jpg', 'rb')
-    img2 = open('/home/google_sheetBot/assets/2.jpg', 'rb')
-
-
+    img1 = open(os.path.abspath('assets/1.jpg'), 'rb')
+    img2 = open(os.path.abspath('assets/2.jpg'), 'rb')
+    
     await message.answer(help_message, parse_mode='HTML', disable_web_page_preview=True)
     await message.answer(instruction, parse_mode='HTML', disable_web_page_preview=True)
     await bot.send_photo(message.from_user.id, img1)
@@ -244,7 +235,7 @@ async def day_10(message: types.Message):
 
 
                 #RETURN VALUES
-                message_dict = await gr.return_message_list()
+                message_dict = gr.return_message_list()
                 img = open(message_dict['path'], 'rb')
                 await bot.send_photo(message.from_user.id, img)
                 os.remove(message_dict['path'])
@@ -266,9 +257,9 @@ async def day_10(message: types.Message):
 
                 await message.answer(advice_text, parse_mode='HTML')
 
-                await gr.clear_message_list()
+                gr.clear_message_list()
             else:
-                await gr.remove_list()
+                gr.remove_list()
                 await message.answer('В вашей таблице пока слишком мало записей')
         else:
             await message.answer('У вас нет таблицы, установите её <b>/set_table</b>', parse_mode='HTML')
@@ -310,7 +301,7 @@ async def day_30(message: types.Message):
 
 
                 #RETURN VALUES
-                message_dict = await gr.return_message_list()
+                message_dict = gr.return_message_list()
                 img = open(message_dict['path'], 'rb')
                 await bot.send_photo(message.from_user.id, img)
                 os.remove(message_dict['path'])
@@ -331,7 +322,7 @@ async def day_30(message: types.Message):
 
                 await message.answer(advice_text, parse_mode='HTML')
 
-                await gr.clear_message_list()
+                gr.clear_message_list()
             else:
                 await gr.remove_list()
                 await message.answer('В вашей таблице пока слишком мало записей')
@@ -377,7 +368,7 @@ async def all_day(message: types.Message):
 
 
                 #RETURN VALUES
-                message_dict = await gr.return_message_list()
+                message_dict = gr.return_message_list()
                 img = open(message_dict['path'], 'rb')
                 await bot.send_photo(message.from_user.id, img)
                 os.remove(message_dict['path'])
@@ -399,7 +390,7 @@ async def all_day(message: types.Message):
                 await message.answer(advice_text, parse_mode='HTML')
 
 
-                await gr.clear_message_list()
+                gr.clear_message_list()
             else:
                 await gr.remove_list()
                 await message.answer('В вашей таблице пока слишком мало записей')
@@ -407,9 +398,6 @@ async def all_day(message: types.Message):
             await message.answer('У вас нет таблицы, установите её <b>/set_table</b>', parse_mode='HTML')
     else:
         await message.answer('Вы ещё не приобрели доступ')
-
-
-
 
 
 
@@ -430,6 +418,7 @@ async def start_description_day(message: types.Message):
     if await db_pay.user_status(message.from_user.id) == 'golden':
         if await db.exist_spreadsheet(message.from_user.id) is not None:
             spreadsheetId = await db.get_spreadsheetId(message.from_user.id)
+
             #START CHECK
             per = Thread(target=permission, args=(spreadsheetId[0], ))
             per.start()
@@ -438,11 +427,11 @@ async def start_description_day(message: types.Message):
             await asyncio.sleep(1)
 
             # Handler errors (wait). If error, then wait and continue
-            if await returns_permission() == 'Error':
+            if returns_permission() == 'Error':
 
                 await asyncio.sleep(1)
 
-                if await returns_permission():
+                if returns_permission():
                     await clear_returns()
                     await message.answer('Оцените день по шкале от 1 до 5', reply_markup=cl_kb.score_day)
                     await FSMdescription.score.set()
@@ -452,7 +441,7 @@ async def start_description_day(message: types.Message):
 
             # If not error, then not wait
             else:
-                if await returns_permission():
+                if returns_permission():
                     await clear_returns()
                     await message.answer('Оцените день по шкале от 1 до 5', reply_markup=cl_kb.score_day)
                     await FSMdescription.score.set()
@@ -511,8 +500,7 @@ async def check_description_day(message: types.Message, state: FSMContext):
 async def save_description_day(message: types.Message, state: FSMContext):
     await message.answer('Оценка зачтена в статистику ✔', reply_markup=cl_kb.main_kb)
     async with state.proxy() as data:
-
-        data['date'] = datetime.datetime.now().strftime('%d\%m\%Y')
+        data['date'] = datetime.datetime.now().strftime('%d\\%m\\%Y')
 
         # Заносимые данные
         values = [[data['date'], data['score'], data['description']]]
@@ -522,9 +510,8 @@ async def save_description_day(message: types.Message, state: FSMContext):
         del_mes1 = await message.answer('Подождите, пока бот внесёт данные...', reply_markup=cl_kb.kb_remove)
         del_mes2 = await bot.send_sticker(message.from_user.id, 'CAACAgIAAxkBAAIHvGLD7IfmXUxoiO9RnLPhOSSZy1f2AAIjAAMoD2oUJ1El54wgpAYpBA')
 
-
-        insert_val = Thread(target=insert_values, args=(credentials, user_spreadsheetId[0], values))
-        insert_val.start()
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, run_insert_values, credentials, user_spreadsheetId[0], values)
 
         await asyncio.sleep(1)
 
@@ -534,15 +521,14 @@ async def save_description_day(message: types.Message, state: FSMContext):
 
     await state.finish()
 
+def run_insert_values(credentials, spreadsheetId, values):
+    asyncio.run(insert_values(credentials, spreadsheetId, values))
 
 
 # CANCEL
 async def cancel(message: types.Message, state: FSMContext):
     await message.answer('Отмена завершена ❌', reply_markup=cl_kb.main_kb)
     await state.finish()
-
-
-
 
 
 # REFERRAL SYSTEM
