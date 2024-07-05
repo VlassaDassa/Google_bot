@@ -21,7 +21,7 @@ python==3.9.7, aiogram, matplotlib, gsheets
 python -m venv venv
 venv\Scripts\activate
 pip install -r .\requirements.txt
-python manage.py app.py
+python app.py
 ```
 
 ## Инструкция по разработке
